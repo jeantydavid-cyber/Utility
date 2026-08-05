@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Cups to grams, by ingredient — PlainNumbers</title>
-<meta name="description" content="Convert cups, tablespoons and ounces to grams using the density of the actual ingredient — because a cup of honey weighs four times a cup of cocoa.">
+<meta name="description" content="Convert cups, tablespoons and teaspoons to grams using the density of the actual ingredient — because a cup of honey weighs four times a cup of cocoa.">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -14,7 +14,6 @@
     <a class="site-name" href="index.html">Plain<span>Numbers</span></a>
     <nav class="site-nav">
       <a href="cups-to-grams.html" aria-current="page">Cups → grams</a>
-      <a href="heating-cost.html">Heating cost</a>
       <a href="mayonnaise.html">Mayonnaise</a>
     </nav>
   </div>
@@ -22,11 +21,10 @@
 
 <main class="wrap">
 
-  <h1>Cups to grams, by ingredient</h1>
-  <p class="lede">A cup is a volume, so converting it to weight needs the
-  density of the specific ingredient. Converters that apply one number to
-  everything are using water's density — wrong for nearly everything, and
-  worst in baking, where precision matters most.</p>
+  <h1>Cups to grams</h1>
+  <p class="lede">A cup of honey weighs four times a cup of cocoa — so a
+  real conversion needs to know the ingredient. Pick yours, type the
+  amount, done.</p>
 
   <div class="tool">
     <div class="field">
@@ -47,14 +45,6 @@
           <option value="tbsp">tablespoons</option>
           <option value="tsp">teaspoons</option>
           <option value="oz">ounces (weight)</option>
-          <option value="floz">fluid ounces</option>
-        </select>
-      </div>
-      <div class="field">
-        <label for="cupstd">Cup standard</label>
-        <select id="cupstd">
-          <option value="240" selected>US cup (240 ml)</option>
-          <option value="250">Metric cup (250 ml)</option>
         </select>
       </div>
     </div>
@@ -69,9 +59,9 @@
   <!-- Ad slot: below the result block. Paste ad unit here after approval. -->
   <div class="ad-slot"></div>
 
-  <div class="crosslink">Converting for a mayonnaise recipe? The
+  <div class="crosslink">Making mayonnaise? The
   <a href="mayonnaise.html">mayonnaise helper</a> on this site works out
-  yolks, mustard, acid and salt from the oil in millilitres.</div>
+  yolks, mustard, acid and salt from the amount of oil.</div>
 
   <div class="note" id="flour-note" hidden><strong>Flour is measured spooned
   and levelled.</strong> The number above assumes flour spooned loosely into
@@ -114,14 +104,15 @@
     <h3>Which cup? There are three</h3>
 
     <p>The cup itself isn't one thing. The US customary cup is 236.6 ml,
-    rounded to 240 ml on nutrition labels and in practice. The metric cup,
-    standard in Australia, New Zealand and much modern Commonwealth cooking,
-    is 250 ml — about 4% larger. And old British cookbooks, printed before
+    rounded to 240 ml on nutrition labels and in practice — that's the cup
+    this tool uses, because nearly all cup-based recipes are American. The
+    metric cup, standard in Australia, New Zealand and much modern
+    Commonwealth cooking, is 250 ml — about 4% larger, so for a metric-cup
+    recipe, add 4% to the result. And old British cookbooks, printed before
     decimalisation, use the imperial cup of 284 ml (half an imperial pint),
-    which is a full 18% larger than the US cup. A pre-1970s British recipe
-    converted with US assumptions will be noticeably off in every ingredient
-    at once. This tool handles the first two directly; for an imperial-cup
-    recipe, multiply the result by 1.18.</p>
+    a full 18% larger than the US cup. A pre-1970s British recipe converted
+    with US assumptions will be noticeably off in every ingredient at
+    once.</p>
 
     <!-- Ad slot: mid-explainer. Paste ad unit here after approval. -->
     <div class="ad-slot"></div>
@@ -136,10 +127,9 @@
     certainly means fluid ounces (a US cup); "8 oz cheese" means weight; "8 oz
     honey" is genuinely ambiguous, and the two readings differ by half again:
     8 fl oz of honey weighs about 335 g, while 8 oz by weight is 227 g.
-    In this tool, "ounces (weight)" converts directly to grams and ignores
-    the ingredient entirely, while "fluid ounces" is a volume and goes
-    through the ingredient's density like cups do. If a result looks strange,
-    check you've picked the right ounce.</p>
+    The "ounces" in this tool are weight ounces — they convert straight to
+    grams and the ingredient doesn't matter. If your recipe means fluid
+    ounces of a liquid, use cups instead: 8 fl oz is one cup.</p>
 
     <h3>The tablespoon isn't safe either</h3>
 
@@ -212,13 +202,11 @@
   ];
 
   var GRAMS_PER_OZ = 28.35;
-  var ML_PER_FLOZ = 29.57;
   var GRAMS_PER_STICK = 113;
 
   var elIngredient = document.getElementById("ingredient");
   var elAmount = document.getElementById("amount");
   var elUnit = document.getElementById("unit");
-  var elCupStd = document.getElementById("cupstd");
   var elResult = document.getElementById("result");
   var elValue = document.getElementById("result-value");
   var elSub = document.getElementById("result-sub");
@@ -261,7 +249,6 @@
   function update() {
     var amount = parseFloat(elAmount.value);
     var unit = elUnit.value;
-    var cupMl = parseFloat(elCupStd.value); // 240 or 250
     var ing = findIngredient(elIngredient.value);
 
     if (isNaN(amount) || amount < 0) {
@@ -285,17 +272,9 @@
         return;
       }
       var gPerCup = ing[1];
-      var cups;
-      if (unit === "floz") {
-        // Fluid ounces are an absolute volume; the cup-standard setting
-        // doesn't apply. Route through density via the US cup baseline.
-        cups = (amount * ML_PER_FLOZ) / 240;
-        grams = cups * gPerCup;
-      } else {
-        cups = unit === "cup" ? amount : unit === "tbsp" ? amount / 16 : amount / 48;
-        grams = cups * gPerCup * (cupMl / 240);
-      }
-      sub = "Using " + gPerCup + " g per US cup for " + ing[0].toLowerCase() + ".";
+      var cups = unit === "cup" ? amount : unit === "tbsp" ? amount / 16 : amount / 48;
+      grams = cups * gPerCup;
+      sub = "Using " + gPerCup + " g per US cup (240 ml) for " + ing[0].toLowerCase() + ".";
       if (ing[0] === "Butter") {
         var sticks = Math.round((grams / GRAMS_PER_STICK) * 10) / 10;
         sub += " That's " + sticks + " US stick" + (sticks === 1 ? "" : "s") +
@@ -309,7 +288,7 @@
     elFlourNote.hidden = !(ing && unit !== "oz" && ing[0].indexOf("Flour") === 0);
   }
 
-  [elIngredient, elAmount, elUnit, elCupStd].forEach(function (el) {
+  [elIngredient, elAmount, elUnit].forEach(function (el) {
     el.addEventListener("input", update);
     el.addEventListener("change", update);
   });

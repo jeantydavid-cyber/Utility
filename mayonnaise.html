@@ -17,25 +17,27 @@
     font: inherit;
     font-size: 0.92rem;
     font-weight: 600;
-    padding: 0.45rem 0.9rem;
+    padding: 0.5rem 1rem;
     border-radius: 999px;
     border: 1.5px solid var(--line);
     background: #fff;
     color: var(--ink);
     cursor: pointer;
+    box-shadow: var(--shadow);
   }
-  .symptom-buttons button:hover { border-color: var(--accent); }
+  .symptom-buttons button:hover { border-color: var(--green); }
   .symptom-buttons button[aria-pressed="true"] {
-    background: var(--accent);
-    border-color: var(--accent);
+    background: var(--green-deep);
+    border-color: var(--green-deep);
     color: #fff;
   }
   .fix {
     background: #fff;
     border: 1px solid var(--line);
-    border-left: 4px solid var(--accent);
-    border-radius: 0 8px 8px 0;
-    padding: 0.85rem 1.1rem;
+    border-left: 4px solid var(--green);
+    border-radius: 0 12px 12px 0;
+    box-shadow: var(--shadow);
+    padding: 0.9rem 1.15rem;
     font-size: 0.97rem;
   }
   .fix h3 { margin: 0 0 0.3rem; }
@@ -49,7 +51,6 @@
     <a class="site-name" href="index.html">Plain<span>Numbers</span></a>
     <nav class="site-nav">
       <a href="cups-to-grams.html">Cups → grams</a>
-      <a href="heating-cost.html">Heating cost</a>
       <a href="mayonnaise.html" aria-current="page">Mayonnaise</a>
     </nav>
   </div>
@@ -58,18 +59,15 @@
 <main class="wrap">
 
   <h1>Mayonnaise helper</h1>
-  <p class="lede">Start from the oil, not the recipe: the yolk count follows
-  from how much oil you want to emulsify. And when it goes wrong — it goes
-  wrong for everyone — the rescue below works because you're not repairing
-  the broken batch, you're reusing it.</p>
+  <p class="lede">Type how much oil you have — the yolks, mustard, acid and
+  salt follow from that. And if it goes wrong, the rescue guide below has
+  you covered.</p>
 
-  <h2>Quantities</h2>
   <div class="tool">
     <div class="field">
       <label for="oil">Oil (ml)</label>
       <input type="number" id="oil" min="0" step="any" inputmode="decimal"
              placeholder="e.g. 300">
-      <p class="hint">One yolk comfortably handles up to about 200 ml of oil.</p>
     </div>
   </div>
 
@@ -84,10 +82,10 @@
 
   <div class="crosslink">Recipe in cups? The amounts here are in millilitres
   — the <a href="cups-to-grams.html">cups-to-grams converter</a> on this site
-  translates cup and fluid-ounce measures (1 US cup = 240 ml).</div>
+  translates cup measures (1 US cup = 240 ml).</div>
 
-  <h2>Rescue</h2>
-  <p>Pick what happened:</p>
+  <h2>Something went wrong?</h2>
+  <p>Pick what happened and get the fix:</p>
   <div class="symptom-buttons" id="symptoms" role="group" aria-label="Symptom picker"></div>
   <div class="fix" id="fix" hidden>
     <h3 id="fix-title"></h3>
