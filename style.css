@@ -1,0 +1,405 @@
+/* ==========================================================================
+   Shared stylesheet — kitchen + heating tools
+   Palette: paper white, deep ink, strong cobalt accent. Utilitarian, not
+   broadsheet: heavy sans headings, tabular numerals, solid blocks.
+   ========================================================================== */
+
+:root {
+  --paper: #fdfdfb;
+  --panel: #f2f3ef;
+  --ink: #1a1e26;
+  --muted: #5b6370;
+  --line: #d8dad3;
+  --accent: #1d4ed8;
+  --accent-deep: #14318f;
+  --result-bg: #122a5e;
+  --result-ink: #ffffff;
+  --warn-bg: #fdf3d7;
+  --warn-line: #e5c565;
+}
+
+* { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-size: 17px;
+  line-height: 1.6;
+}
+
+.wrap {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 0 1.25rem;
+}
+
+/* --------------------------------------------------------------- header */
+
+.site-header {
+  border-bottom: 3px solid var(--ink);
+  background: var(--paper);
+}
+
+.site-header .wrap {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem 1.5rem;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+}
+
+.site-name {
+  font-weight: 800;
+  font-size: 1.15rem;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+  color: var(--ink);
+}
+
+.site-name span { color: var(--accent); }
+
+.site-nav a {
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 0.92rem;
+  margin-left: 1rem;
+  font-weight: 600;
+}
+
+.site-nav a:hover,
+.site-nav a[aria-current="page"] { color: var(--accent); }
+
+/* ----------------------------------------------------------------- type */
+
+h1 {
+  font-size: 2rem;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  font-weight: 800;
+  margin: 1.75rem 0 0.5rem;
+}
+
+h2 {
+  font-size: 1.35rem;
+  letter-spacing: -0.01em;
+  font-weight: 800;
+  margin: 2.25rem 0 0.5rem;
+}
+
+h3 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin: 1.5rem 0 0.35rem;
+}
+
+p { margin: 0.6rem 0 1rem; }
+
+a { color: var(--accent); }
+
+.lede {
+  font-size: 1.08rem;
+  color: var(--muted);
+  margin-bottom: 1.5rem;
+}
+
+/* ----------------------------------------------------------------- form */
+
+.tool {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 1.25rem 1.25rem 1.4rem;
+  margin: 1.25rem 0;
+}
+
+.field {
+  margin-bottom: 0.9rem;
+}
+
+.field label {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+  margin-bottom: 0.3rem;
+}
+
+.field input[type="number"],
+.field input[type="text"],
+.field select {
+  width: 100%;
+  font: inherit;
+  font-variant-numeric: tabular-nums;
+  padding: 0.55rem 0.7rem;
+  border: 1.5px solid var(--line);
+  border-radius: 7px;
+  background: #fff;
+  color: var(--ink);
+}
+
+.field input:focus,
+.field select:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+  border-color: var(--accent);
+}
+
+.field-row {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.field-row .field { flex: 1; margin-bottom: 0.9rem; }
+
+.hint {
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin-top: 0.25rem;
+}
+
+/* --------------------------------------------------------------- result */
+
+.result {
+  background: var(--result-bg);
+  color: var(--result-ink);
+  border-radius: 10px;
+  padding: 1.35rem 1.4rem;
+  margin: 1.25rem 0;
+}
+
+.result .label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  opacity: 0.75;
+  margin-bottom: 0.3rem;
+}
+
+.result .value {
+  font-size: 2.6rem;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.result .value small {
+  font-size: 1.4rem;
+  font-weight: 700;
+  opacity: 0.85;
+}
+
+.result .sub {
+  margin-top: 0.5rem;
+  font-size: 0.95rem;
+  opacity: 0.85;
+}
+
+.result .sub strong { color: #fff; }
+
+.result.idle .value { opacity: 0.45; font-size: 1.5rem; }
+
+/* --------------------------------------------------------------- tables */
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 1rem 0 1.5rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.table-scroll { overflow-x: auto; }
+
+th, td {
+  text-align: left;
+  padding: 0.45rem 0.7rem;
+  border-bottom: 1px solid var(--line);
+  font-size: 0.95rem;
+}
+
+th {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+  border-bottom: 2px solid var(--ink);
+}
+
+td.num, th.num { text-align: right; }
+
+tr.best td { font-weight: 700; background: #eef2ff; }
+
+/* ---------------------------------------------------------------- notes */
+
+.note {
+  background: var(--warn-bg);
+  border-left: 4px solid var(--warn-line);
+  border-radius: 0 8px 8px 0;
+  padding: 0.7rem 1rem;
+  margin: 1rem 0;
+  font-size: 0.95rem;
+}
+
+.crosslink {
+  background: #eef2ff;
+  border-left: 4px solid var(--accent);
+  border-radius: 0 8px 8px 0;
+  padding: 0.7rem 1rem;
+  margin: 1rem 0;
+  font-size: 0.95rem;
+}
+
+/* ------------------------------------------------------------- ad slots */
+
+/* Empty containers reserved for AdSense units. Height is reserved so the
+   page does not shift when ads load. Paste the ad script inside the div
+   after approval; consent.js gates loading on the user's choice. */
+.ad-slot {
+  min-height: 280px;
+  margin: 1.5rem 0;
+  border: 1px dashed var(--line);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ad-slot::before {
+  content: "advertisement";
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #c2c5bd;
+}
+
+/* ------------------------------------------------------------ explainer */
+
+.explainer { margin-top: 2.5rem; }
+
+.explainer h2 { border-top: 3px solid var(--ink); padding-top: 1.25rem; }
+
+/* ----------------------------------------------------------- tool cards */
+
+.tool-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 1rem;
+  margin: 1.5rem 0 2rem;
+}
+
+.tool-card {
+  display: block;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 1.1rem 1.15rem 1.2rem;
+  text-decoration: none;
+  color: var(--ink);
+}
+
+.tool-card:hover { border-color: var(--accent); }
+
+.tool-card h2 {
+  margin: 0 0 0.35rem;
+  font-size: 1.1rem;
+  color: var(--accent);
+}
+
+.tool-card p {
+  margin: 0;
+  font-size: 0.92rem;
+  color: var(--muted);
+}
+
+/* --------------------------------------------------------------- footer */
+
+.site-footer {
+  margin-top: 3.5rem;
+  background: var(--ink);
+  color: #b9bec7;
+  font-size: 0.88rem;
+}
+
+.site-footer .wrap {
+  padding-top: 1.5rem;
+  padding-bottom: 1.75rem;
+}
+
+.site-footer a { color: #e6e8ec; }
+
+.site-footer p { margin: 0.4rem 0; }
+
+/* ------------------------------------------------------- consent banner */
+
+.consent-banner {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 100;
+  background: var(--ink);
+  color: #e6e8ec;
+  border-top: 3px solid var(--accent);
+  padding: 1rem 1.25rem;
+}
+
+.consent-banner .inner {
+  max-width: 760px;
+  margin: 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1.5rem;
+}
+
+.consent-banner p {
+  margin: 0;
+  flex: 1 1 320px;
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.consent-banner a { color: #fff; }
+
+.consent-banner .buttons { display: flex; gap: 0.6rem; }
+
+.consent-banner button {
+  font: inherit;
+  font-weight: 700;
+  padding: 0.5rem 1.1rem;
+  border-radius: 7px;
+  cursor: pointer;
+  border: 1.5px solid transparent;
+}
+
+.consent-banner button.accept {
+  background: var(--accent);
+  color: #fff;
+}
+
+.consent-banner button.accept:hover { background: var(--accent-deep); }
+
+.consent-banner button.decline {
+  background: transparent;
+  color: #e6e8ec;
+  border-color: #5b6370;
+}
+
+.consent-banner button.decline:hover { border-color: #e6e8ec; }
+
+/* --------------------------------------------------------------- mobile */
+
+@media (max-width: 560px) {
+  h1 { font-size: 1.6rem; }
+  .result .value { font-size: 2rem; }
+  .field-row { flex-direction: column; gap: 0; }
+}
