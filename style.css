@@ -212,20 +212,22 @@ main {
   to   { opacity: 1; transform: none; }
 }
 
+/* the field is the slip of paper the task gets written on */
 input[type="text"] {
   width: 100%;
-  background: var(--surface);
-  color: var(--mist);
-  border: 1px solid var(--line);
-  border-radius: 3px;
-  padding: 15px 18px;
-  font-family: var(--body);
-  font-size: 17px;
+  background: linear-gradient(180deg, #EDE7D8, #E2DBC8);
+  color: #22302C;
+  border: none;
+  border-radius: 2px;
+  padding: 16px 18px;
+  font-family: var(--display);
+  font-size: 19px;
   outline: none;
+  box-shadow: 0 5px 16px rgba(0, 0, 0, 0.35);
 }
 
-input[type="text"]::placeholder { color: #5E7075; }
-input[type="text"]:focus-visible { border-color: var(--clay); }
+input[type="text"]::placeholder { color: #8B8674; font-style: italic; }
+input[type="text"]:focus-visible { outline: 2px solid var(--clay); outline-offset: 3px; }
 
 .opts { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
 
@@ -344,28 +346,54 @@ button:focus-visible, input:focus-visible {
   margin: 0 0 18px;
 }
 
+/* the unfolded slip of paper the task is written on */
+.paper {
+  background: linear-gradient(180deg, #EDE7D8 0%, #E7E0D0 55%, #E0D8C4 100%);
+  border-radius: 2px;
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.4);
+  padding: 26px 24px;
+  position: relative;
+  transform: rotate(-1.2deg);
+}
+
+/* fold creases left from its time in the box */
+.paper::before,
+.paper::after {
+  content: "";
+  position: absolute;
+  left: 4%;
+  right: 4%;
+  border-top: 1px solid rgba(27, 40, 44, 0.12);
+}
+
+.paper::before { top: 33%; }
+.paper::after { top: 66%; border-top-color: rgba(27, 40, 44, 0.09); }
+
 #thing {
   font-family: var(--display);
   font-weight: 400;
-  font-size: clamp(32px, 8vw, 50px);
-  line-height: 1.18;
+  font-size: clamp(28px, 7vw, 44px);
+  line-height: 1.2;
   margin: 0;
-  color: #fff;
+  color: #22302C;
 }
 
-#thing.rise { animation: rise 500ms var(--ease) both; }
-#thing.sink { animation: sink 460ms var(--ease) both; }
-#thing.fade { animation: fade-out 360ms ease both; }
+.paper.unfold { animation: unfold 560ms var(--ease) both; }
+.paper.foldaway { animation: foldaway 520ms var(--ease) both; }
+.paper.fade { animation: fade-out 360ms ease both; }
 
-@keyframes rise {
-  from { opacity: 0; transform: translateY(46px) scale(0.72); }
-  82%  { transform: translateY(-3px) scale(1.005); }
-  to   { opacity: 1; transform: none; }
+/* out of the box: rises as a folded slip, then opens flat */
+@keyframes unfold {
+  0%   { opacity: 0; transform: perspective(700px) translateY(80px) rotateX(72deg) scaleY(0.16) scale(0.86) rotate(-1.2deg); }
+  55%  { opacity: 1; transform: perspective(700px) translateY(4px) rotateX(10deg) scaleY(1.02) rotate(-1.2deg); }
+  100% { opacity: 1; transform: rotate(-1.2deg); }
 }
 
-@keyframes sink {
-  from { opacity: 1; transform: none; }
-  to   { opacity: 0; transform: translateY(52px) scale(0.6); }
+/* back into the box: folds flat, then sinks in */
+@keyframes foldaway {
+  0%   { opacity: 1; transform: rotate(-1.2deg); }
+  50%  { opacity: 1; transform: perspective(700px) rotateX(70deg) scaleY(0.15) rotate(-1.2deg); }
+  100% { opacity: 0; transform: perspective(700px) translateY(150px) rotateX(70deg) scaleY(0.13) scale(0.6) rotate(-1.2deg); }
 }
 
 @keyframes fade-out {
@@ -394,6 +422,11 @@ button:focus-visible, input:focus-visible {
   animation: rise 500ms var(--ease) both;
 }
 
+@keyframes rise {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: none; }
+}
+
 .calm-sub { color: var(--quiet); margin: 0; font-size: 16px; }
 
 /* ------------------------------------------------ the drifting text */
@@ -405,23 +438,30 @@ button:focus-visible, input:focus-visible {
   overflow: visible;
 }
 
+/* the written slip: folds in half, then drops into the box */
 .drift {
   position: absolute;
   left: 50%;
-  top: -34px;
+  top: -40px;
   transform: translateX(-50%);
   font-family: var(--display);
-  font-size: 22px;
-  color: #fff;
+  font-size: 19px;
+  color: #22302C;
+  background: linear-gradient(180deg, #EDE7D8, #E2DBC8);
+  border-radius: 2px;
+  padding: 10px 18px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
   white-space: nowrap;
   max-width: 120vw;
-  animation: drift-in 520ms var(--ease) both;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  animation: fold-in 640ms var(--ease) both;
 }
 
-@keyframes drift-in {
-  from { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
-  70%  { opacity: 0.9; }
-  to   { opacity: 0; transform: translateX(-50%) translateY(150px) scale(0.35); }
+@keyframes fold-in {
+  0%   { opacity: 1; transform: translateX(-50%); }
+  45%  { opacity: 1; transform: translateX(-50%) perspective(600px) rotateX(72deg) scaleY(0.18); }
+  100% { opacity: 0; transform: translateX(-50%) translateY(155px) perspective(600px) rotateX(72deg) scaleY(0.14) scale(0.5); }
 }
 
 /* --------------------------------------------------------- footer */
@@ -462,6 +502,6 @@ footer button { vertical-align: baseline; }
   #shadow { animation: none; }
   #lid, #boxWrap, #seam, .choice { transition: none; }
   #inPanel, #energyPanel, #calmMsg { animation: none; }
-  #thing.rise, #thing.sink, #thing.fade { animation-duration: 1ms; }
+  .paper.unfold, .paper.foldaway, .paper.fade { animation-duration: 1ms; }
   .drift { animation-duration: 1ms; }
 }

@@ -8,8 +8,9 @@
   var KEY = 'the-box-v1';
   var DAY = 24 * 60 * 60 * 1000;
 
-  var DRIFT_MS = 540;   // typed text drifting down into the box
+  var DRIFT_MS = 640;   // the written slip folding and dropping into the box
   var LID_MS = 340;     // the lid closing over it
+  var FOLD_MS = 500;    // the paper folding back up before it sinks in
   var EMPTY_LINGER_MS = 2600;
 
   // ---------- storage, with an in-memory fallback ----------
@@ -275,11 +276,11 @@
     mem.current = t.id;
     save();
 
-    var thing = $('thing');
-    thing.classList.remove('rise', 'sink', 'fade');
-    void thing.offsetWidth;
-    thing.textContent = t.text;
-    thing.classList.add('rise');
+    var paper = $('paperCard');
+    paper.classList.remove('unfold', 'foldaway', 'fade');
+    void paper.offsetWidth;
+    $('thing').textContent = t.text;
+    paper.classList.add('unfold');
 
     var bits = [];
     bits.push(effortWords[t.effort] || 'a task');
@@ -320,11 +321,12 @@
     save();
     current = null;
 
-    // A recurring task sinks back into the box; a one-off simply goes.
-    var thing = $('thing');
-    thing.classList.remove('rise');
-    void thing.offsetWidth;
-    thing.classList.add(wasRecurring ? 'sink' : 'fade');
+    // A recurring task folds back up and sinks into the box; a one-off
+    // simply goes.
+    var paper = $('paperCard');
+    paper.classList.remove('unfold');
+    void paper.offsetWidth;
+    paper.classList.add(wasRecurring ? 'foldaway' : 'fade');
 
     setTimeout(function () {
       busy = false;
@@ -338,7 +340,7 @@
   });
 
   $('notThis').addEventListener('click', function () {
-    if (!current) return;
+    if (!current || busy) return;
     skippedThisRound.push(current.id);
     var energy = lastEnergy || 3;
     var t = pick(energy);
@@ -346,14 +348,33 @@
       $('thingNote').textContent = 'That’s the only thing that fits your energy right now. Do it, or rest. Both are fine.';
       return;
     }
-    renderThing(t);
+    // This one folds back into the box; the next one comes out and unfolds.
+    busy = true;
+    var paper = $('paperCard');
+    paper.classList.remove('unfold');
+    void paper.offsetWidth;
+    paper.classList.add('foldaway');
+    setTimeout(function () {
+      busy = false;
+      renderThing(t);
+    }, FOLD_MS);
   });
 
   $('backBtn').addEventListener('click', function () {
+    if (busy) return;
+    busy = true;
     mem.current = null;
     save();
     current = null;
-    toIdle();
+    // The paper folds back up and returns to the box, no comment.
+    var paper = $('paperCard');
+    paper.classList.remove('unfold');
+    void paper.offsetWidth;
+    paper.classList.add('foldaway');
+    setTimeout(function () {
+      busy = false;
+      toIdle();
+    }, FOLD_MS);
   });
 
   // ---------- emptying the box ----------
@@ -401,9 +422,8 @@
     lastEnergy = 3;
     $('outEyebrow').textContent = 'Still yours';
     setState('out');
-    var thing = $('thing');
-    thing.textContent = t.text;
-    thing.classList.add('rise');
+    $('thing').textContent = t.text;
+    $('paperCard').classList.add('unfold');
     $('thingMeta').textContent = 'You took this out earlier. However long it took is however long it took.';
     $('thingNote').textContent = '';
   })();
