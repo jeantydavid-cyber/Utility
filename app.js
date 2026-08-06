@@ -415,18 +415,43 @@
     }, FOLD_MS);
   });
 
-  // ---------- emptying the box ----------
-  // The warning is part of the page, not a browser popup, so it always
-  // shows and matches the app's voice. Nothing is deleted until "Empty it".
+  // ---------- the two footer icons ----------
+  // Left: the explanation. Right: emptying the box, behind its warning.
+  // Only one panel is open at a time; nothing is deleted until "Empty it".
+  var aboutPanel = $('aboutPanel');
+  var aboutBtn = $('aboutBtn');
   var emptyConfirm = $('emptyConfirm');
+  var emptyBtn = $('emptyBox');
+
+  function hideAbout() {
+    aboutPanel.hidden = true;
+    aboutBtn.setAttribute('aria-expanded', 'false');
+  }
 
   function hideEmptyConfirm() {
     emptyConfirm.hidden = true;
+    emptyBtn.setAttribute('aria-expanded', 'false');
   }
 
-  $('emptyBox').addEventListener('click', function () {
-    emptyConfirm.hidden = false;
-    $('emptyNo').focus();
+  aboutBtn.addEventListener('click', function () {
+    if (aboutPanel.hidden) {
+      hideEmptyConfirm();
+      aboutPanel.hidden = false;
+      aboutBtn.setAttribute('aria-expanded', 'true');
+    } else {
+      hideAbout();
+    }
+  });
+
+  emptyBtn.addEventListener('click', function () {
+    if (emptyConfirm.hidden) {
+      hideAbout();
+      emptyConfirm.hidden = false;
+      emptyBtn.setAttribute('aria-expanded', 'true');
+      $('emptyNo').focus();
+    } else {
+      hideEmptyConfirm();
+    }
   });
 
   $('emptyYes').addEventListener('click', function () {
@@ -440,7 +465,9 @@
   $('emptyNo').addEventListener('click', hideEmptyConfirm);
 
   document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape' && !emptyConfirm.hidden) hideEmptyConfirm();
+    if (e.key !== 'Escape') return;
+    if (!emptyConfirm.hidden) hideEmptyConfirm();
+    if (!aboutPanel.hidden) hideAbout();
   });
 
   // ---------- storage notice ----------

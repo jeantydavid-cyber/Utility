@@ -468,17 +468,15 @@ footer {
   max-width: 560px;
   width: 100%;
   margin-top: 40px;
-  padding-top: 18px;
+  padding-top: 10px;
   border-top: 1px solid var(--line);
   color: var(--quiet);
   font-size: 13.5px;
   line-height: 1.7;
 }
 
-footer button { vertical-align: baseline; }
-
-#emptyConfirm {
-  margin-top: 14px;
+.footer-panel {
+  margin: 8px 0 12px;
   padding: 14px 16px;
   border: 1px solid var(--line);
   border-left: 3px solid var(--clay);
@@ -486,13 +484,45 @@ footer button { vertical-align: baseline; }
   background: var(--surface);
 }
 
-#emptyConfirm p {
-  margin: 0 0 12px;
+.footer-panel p {
+  margin: 0;
   color: var(--mist);
   font-size: 15px;
 }
 
+#emptyConfirm p { margin-bottom: 12px; }
+
 .confirm-row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+
+.footer-icons {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.icon-btn {
+  background: none;
+  border: none;
+  color: var(--quiet);
+  cursor: pointer;
+  padding: 9px;
+  border-radius: 6px;
+}
+
+.icon-btn:hover { color: var(--mist); }
+
+.icon-btn[aria-expanded="true"] { color: var(--clay); }
+
+.icon-btn svg {
+  display: block;
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
 
 /* --------------------------------------------------- reduced motion */
 

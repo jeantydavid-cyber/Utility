@@ -181,15 +181,36 @@
 </main>
 
 <footer>
-  Everything stays in the box, and you decide when to open it. When you are up
-  for it, the box will hand you one thing. The rest it keeps to itself.
-  <button class="plain" id="emptyBox">Empty the box completely</button>
-  <div id="emptyConfirm" hidden>
+  <div class="footer-panel" id="aboutPanel" hidden>
+    <p>Everything stays in the box, and you decide when to open it. When you are
+    up for it, the box will hand you one thing. The rest it keeps to itself.</p>
+  </div>
+  <div class="footer-panel" id="emptyConfirm" hidden>
     <p id="emptyConfirmText">Empty the box completely? Everything in it will be gone for good.</p>
     <div class="confirm-row">
       <button class="ghost" id="emptyYes">Empty it</button>
       <button class="plain" id="emptyNo">Keep everything</button>
     </div>
+  </div>
+  <div class="footer-icons">
+    <button class="icon-btn" id="aboutBtn" aria-label="About the box" aria-expanded="false">
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <circle cx="12" cy="12" r="9" />
+        <path d="M12 7.6 L12 7.7" />
+        <path d="M12 10.8 L12 16.2" />
+      </svg>
+    </button>
+    <button class="icon-btn" id="emptyBox" aria-label="Empty the box completely" aria-expanded="false">
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <g transform="rotate(-30 12 10)">
+          <path d="M6.5 7.5 L17.5 7.5 L17.5 14.5 L6.5 14.5 Z" />
+          <path d="M6.5 7.5 L5 4.9 M17.5 7.5 L19 4.9" />
+        </g>
+        <path d="M8.6 18.2 L7.9 20.4" />
+        <path d="M11.8 18.8 L11.5 21" />
+        <path d="M14.9 18.6 L15.3 20.6" />
+      </svg>
+    </button>
   </div>
 </footer>
 
