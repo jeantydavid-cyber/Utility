@@ -357,14 +357,31 @@
   });
 
   // ---------- emptying the box ----------
+  // The warning is part of the page, not a browser popup, so it always
+  // shows and matches the app's voice. Nothing is deleted until "Empty it".
+  var emptyConfirm = $('emptyConfirm');
+
+  function hideEmptyConfirm() {
+    emptyConfirm.hidden = true;
+  }
+
   $('emptyBox').addEventListener('click', function () {
-    if (mem.tasks.length === 0) return;
-    var sure = confirm('Empty the box completely? Everything in it will be gone for good.');
-    if (!sure) return;
+    emptyConfirm.hidden = false;
+    $('emptyNo').focus();
+  });
+
+  $('emptyYes').addEventListener('click', function () {
     mem = { tasks: [], current: null };
     current = null;
     save();
+    hideEmptyConfirm();
     toIdle();
+  });
+
+  $('emptyNo').addEventListener('click', hideEmptyConfirm);
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && !emptyConfirm.hidden) hideEmptyConfirm();
   });
 
   // ---------- storage notice ----------

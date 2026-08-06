@@ -439,6 +439,23 @@ footer {
 
 footer button { vertical-align: baseline; }
 
+#emptyConfirm {
+  margin-top: 14px;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--clay);
+  border-radius: 3px;
+  background: var(--surface);
+}
+
+#emptyConfirm p {
+  margin: 0 0 12px;
+  color: var(--mist);
+  font-size: 15px;
+}
+
+.confirm-row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+
 /* --------------------------------------------------- reduced motion */
 
 @media (prefers-reduced-motion: reduce) {

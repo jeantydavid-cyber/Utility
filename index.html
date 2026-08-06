@@ -179,6 +179,13 @@
   Everything stays in this browser, on this device. No account, no cloud, no streaks,
   no notifications, and the box never shows you everything at once.
   <button class="plain" id="emptyBox">Empty the box completely</button>
+  <div id="emptyConfirm" hidden>
+    <p id="emptyConfirmText">Empty the box completely? Everything in it will be gone for good.</p>
+    <div class="confirm-row">
+      <button class="ghost" id="emptyYes">Empty it</button>
+      <button class="plain" id="emptyNo">Keep everything</button>
+    </div>
+  </div>
 </footer>
 
 <script src="app.js"></script>
