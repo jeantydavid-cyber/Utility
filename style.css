@@ -413,13 +413,24 @@ button:focus-visible, input:focus-visible {
 
 #calm { margin-bottom: 14px; }
 
-#calmMsg {
+#calmMsg,
+#welcomeMsg {
   font-family: var(--display);
   font-weight: 300;
   font-size: clamp(26px, 6.5vw, 38px);
   line-height: 1.25;
   margin: 0 0 10px;
   animation: rise 500ms var(--ease) both;
+}
+
+#welcome { margin-bottom: 18px; }
+
+.welcome-hint {
+  color: var(--quiet);
+  font-size: 15px;
+  font-family: var(--display);
+  font-style: italic;
+  margin: 14px 0 0;
 }
 
 @keyframes rise {

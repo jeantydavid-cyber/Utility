@@ -60,6 +60,7 @@
 
   var stage = $('stage');
   var panels = {
+    welcome: $('welcome'),
     calm: $('calm'),
     out: $('outPanel'),
     in: $('inPanel'),
@@ -85,7 +86,8 @@
         (name === 'out' && k === 'out') ||
         (name === 'in' && k === 'in') ||
         (name === 'energy' && k === 'energy') ||
-        (name === 'calm' && k === 'calm')
+        (name === 'calm' && k === 'calm') ||
+        (name === 'welcome' && k === 'welcome')
       );
     });
     var choicesVisible = name === 'choice';
@@ -114,7 +116,8 @@
   boxBtn.addEventListener('click', function () {
     if (busy) return;
     var s = state();
-    if (s === 'idle' || s === 'calm') {
+    if (s === 'idle' || s === 'calm' || s === 'welcome') {
+      if (s === 'welcome') markWelcomed();
       setState('choice');
     } else if (s === 'choice' || s === 'in' || s === 'energy') {
       toIdle();
@@ -410,9 +413,29 @@
     $('storageNote').textContent = 'Heads up: this browser is blocking storage, so the box will forget when the tab closes. Open the file in a normal browser tab for it to keep things.';
   }
 
+  // ---------- first open ----------
+  var WELCOME_KEY = 'the-box-welcomed';
+
+  function wasWelcomed() {
+    try { return localStorage.getItem(WELCOME_KEY) === '1'; } catch (e) { return false; }
+  }
+
+  function markWelcomed() {
+    try { localStorage.setItem(WELCOME_KEY, '1'); } catch (e) { /* shown again next time */ }
+  }
+
   // ---------- resume: the hand-off survives closing the app ----------
   (function resume() {
-    if (!mem.current) { toIdle(); return; }
+    if (!mem.current) {
+      // Anyone with tasks has met the box before, even without the flag.
+      if (mem.tasks.length > 0) markWelcomed();
+      if (!wasWelcomed() && mem.tasks.length === 0) {
+        setState('welcome');
+      } else {
+        toIdle();
+      }
+      return;
+    }
     var t = null;
     for (var i = 0; i < mem.tasks.length; i++) {
       if (mem.tasks[i].id === mem.current) { t = mem.tasks[i]; break; }
