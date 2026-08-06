@@ -1,7 +1,7 @@
 /* The Box: offline-first service worker.
    Caches the app shell on install; serves from cache, updating quietly. */
 
-var CACHE = 'the-box-shell-v4';
+var CACHE = 'the-box-shell-v5';
 
 var SHELL = [
   './',
@@ -17,7 +17,11 @@ var SHELL = [
 self.addEventListener('install', function (e) {
   e.waitUntil(
     caches.open(CACHE).then(function (cache) {
-      return cache.addAll(SHELL);
+      // cache: 'reload' forces these fetches past the HTTP cache, so a new
+      // version can never accidentally re-cache stale files from it.
+      return cache.addAll(SHELL.map(function (u) {
+        return new Request(u, { cache: 'reload' });
+      }));
     }).then(function () {
       return self.skipWaiting();
     })
