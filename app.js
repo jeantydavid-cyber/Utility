@@ -8,10 +8,11 @@
   var KEY = 'the-box-v1';
   var DAY = 24 * 60 * 60 * 1000;
 
-  var DRIFT_MS = 640;   // the written slip folding and dropping into the box
+  var DRIFT_MS = 1150;  // the written slip folding and dropping into the box
   var LID_MS = 340;     // the lid closing over it
-  var FOLD_MS = 500;    // the paper folding back up before it sinks in
+  var FOLD_MS = 950;    // the paper folding back up before it sinks in
   var EMPTY_LINGER_MS = 2600;
+  var EASE = 'cubic-bezier(0.3, 0.9, 0.35, 1.02)';
 
   // ---------- storage, with an in-memory fallback ----------
   var mem = { tasks: [], current: null };
@@ -69,7 +70,6 @@
   var choiceIn = $('choiceIn');
   var choiceOut = $('choiceOut');
   var boxBtn = $('box');
-  var driftLayer = $('driftLayer');
 
   var current = null;
   var skippedThisRound = [];
@@ -230,27 +230,62 @@
     });
     save();
 
-    // The essential moment: the words themselves drift down into the box,
-    // the lid closes over them, then opens again for the next thing.
+    // The essential moment: the written slip lifts off the text field,
+    // folds in half, drops into the box, and the lid closes over it.
     busy = true;
     $('addNote').textContent = '';
-    $('task').value = '';
+
+    var field = $('task');
+    var fieldRect = field.getBoundingClientRect();
+    var boxRect = document.getElementById('boxWrap').getBoundingClientRect();
+    field.value = '';
 
     var drift = document.createElement('span');
     drift.className = 'drift';
     drift.textContent = text;
-    driftLayer.appendChild(drift);
+    drift.style.left = fieldRect.left + 'px';
+    drift.style.top = fieldRect.top + 'px';
+    drift.style.width = fieldRect.width + 'px';
+    document.body.appendChild(drift);
 
-    setTimeout(function () {
-      driftLayer.removeChild(drift);
+    // into the mouth of the box
+    var dx = (boxRect.left + boxRect.width / 2) - (fieldRect.left + fieldRect.width / 2);
+    var dy = (boxRect.top + boxRect.height * 0.42) - fieldRect.top;
+
+    var reduce = window.matchMedia &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    var settle = function () {
+      if (drift.parentNode) drift.parentNode.removeChild(drift);
+      // If the input was dismissed mid-drift, don't drag the user back.
+      if (stage.dataset.state !== 'in') { busy = false; return; }
       stage.dataset.state = 'settling'; // lid closes over it
       setTimeout(function () {
-        stage.dataset.state = 'in';     // and opens again
         busy = false;
+        if (stage.dataset.state !== 'settling') return;
+        stage.dataset.state = 'in';     // and opens again
         $('addNote').textContent = '“' + text + '” is in the box. You can forget it now.';
-        $('task').focus();
+        field.focus();
       }, LID_MS);
-    }, DRIFT_MS);
+    };
+
+    if (drift.animate) {
+      var anim = drift.animate([
+        { transform: 'none', opacity: 1, offset: 0 },
+        // folded in half: still clearly a piece of paper, not a hairline
+        { transform: 'perspective(700px) rotateX(52deg) scaleY(0.5)',
+          opacity: 1, offset: 0.4 },
+        { transform: 'translate(' + (dx * 0.85) + 'px, ' + (dy * 0.85) + 'px) ' +
+          'perspective(700px) rotateX(58deg) scaleY(0.42) scale(0.65)',
+          opacity: 1, offset: 0.85 },
+        { transform: 'translate(' + dx + 'px, ' + dy + 'px) ' +
+          'perspective(700px) rotateX(62deg) scaleY(0.38) scale(0.5)',
+          opacity: 0, offset: 1 }
+      ], { duration: reduce ? 1 : DRIFT_MS, easing: EASE, fill: 'forwards' });
+      anim.onfinish = settle;
+    } else {
+      setTimeout(settle, reduce ? 1 : DRIFT_MS);
+    }
   }
 
   $('add').addEventListener('click', addTask);
@@ -339,7 +374,7 @@
       }
       calm('Done. That’s one more than none.',
         'You can stop here. Nothing is keeping score. If you’ve still got something in the tank, ask the box again.');
-    }, 480);
+    }, FOLD_MS);
   });
 
   $('notThis').addEventListener('click', function () {

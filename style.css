@@ -378,9 +378,9 @@ button:focus-visible, input:focus-visible {
   color: #22302C;
 }
 
-.paper.unfold { animation: unfold 560ms var(--ease) both; }
-.paper.foldaway { animation: foldaway 520ms var(--ease) both; }
-.paper.fade { animation: fade-out 360ms ease both; }
+.paper.unfold { animation: unfold 950ms var(--ease) both; }
+.paper.foldaway { animation: foldaway 900ms var(--ease) both; }
+.paper.fade { animation: fade-out 420ms ease both; }
 
 /* out of the box: rises as a folded slip, then opens flat */
 @keyframes unfold {
@@ -442,37 +442,24 @@ button:focus-visible, input:focus-visible {
 
 /* ------------------------------------------------ the drifting text */
 
-#driftLayer {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  overflow: visible;
-}
-
-/* the written slip: folds in half, then drops into the box */
+/* the written slip: looks exactly like the text field it lifts off from,
+   then folds in half and drops into the box (motion driven from app.js) */
 .drift {
-  position: absolute;
-  left: 50%;
-  top: -40px;
-  transform: translateX(-50%);
+  position: fixed;
+  z-index: 60;
+  box-sizing: border-box;
+  pointer-events: none;
   font-family: var(--display);
   font-size: 19px;
+  line-height: 1.6;
   color: #22302C;
   background: linear-gradient(180deg, #EDE7D8, #E2DBC8);
   border-radius: 2px;
-  padding: 10px 18px;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+  padding: 16px 18px;
+  box-shadow: 0 5px 16px rgba(0, 0, 0, 0.35);
   white-space: nowrap;
-  max-width: 120vw;
   overflow: hidden;
   text-overflow: ellipsis;
-  animation: fold-in 640ms var(--ease) both;
-}
-
-@keyframes fold-in {
-  0%   { opacity: 1; transform: translateX(-50%); }
-  45%  { opacity: 1; transform: translateX(-50%) perspective(600px) rotateX(72deg) scaleY(0.18); }
-  100% { opacity: 0; transform: translateX(-50%) translateY(155px) perspective(600px) rotateX(72deg) scaleY(0.14) scale(0.5); }
 }
 
 /* --------------------------------------------------------- footer */
@@ -514,5 +501,4 @@ footer button { vertical-align: baseline; }
   #lid, #boxWrap, #seam, .choice { transition: none; }
   #inPanel, #energyPanel, #calmMsg { animation: none; }
   .paper.unfold, .paper.foldaway, .paper.fade { animation-duration: 1ms; }
-  .drift { animation-duration: 1ms; }
 }
