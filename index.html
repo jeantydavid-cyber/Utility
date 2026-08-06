@@ -3,71 +3,189 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>PlainNumbers — kitchen calculators that get the numbers right</title>
-<meta name="description" content="Two small kitchen calculators that do the arithmetic properly: cups to grams by ingredient, and a mayonnaise helper with a rescue guide.">
+<title>The Box</title>
+<meta name="description" content="A box that never forgets your tasks and never shows you the pile.">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1B282C">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="The Box">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;1,6..72,300&family=Karla:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<header class="site-header">
-  <div class="wrap">
-    <a class="site-name" href="index.html">Plain<span>Numbers</span></a>
-    <nav class="site-nav">
-      <a href="cups-to-grams.html">Cups → grams</a>
-      <a href="mayonnaise.html">Mayonnaise</a>
-    </nav>
-  </div>
-</header>
+<main id="stage" data-state="idle">
 
-<main class="wrap">
+  <h1 class="sr-only">The Box</h1>
 
-  <div class="hero">
-    <div class="eyebrow">Kitchen calculators</div>
-    <h1>Get the numbers right, then cook</h1>
-    <p class="lede">Two small tools that do the arithmetic recipes gloss
-    over — in your browser, as you type, with nothing to install and
-    nothing sent anywhere.</p>
+  <!-- Calm / confirmation messages (done, nothing fits, asleep, empty) -->
+  <div class="panel" id="calm" hidden aria-live="polite">
+    <p id="calmMsg"></p>
+    <p class="calm-sub" id="calmSub"></p>
   </div>
 
-  <div class="tool-cards">
-    <a class="tool-card" href="cups-to-grams.html">
-      <span class="emoji">⚖️</span>
-      <h2>Cups to grams</h2>
-      <p>Volume to weight, per ingredient. A cup of honey weighs four times
-      a cup of cocoa — one conversion factor cannot serve both.</p>
-      <span class="go">Convert →</span>
-    </a>
-    <a class="tool-card" href="mayonnaise.html">
-      <span class="emoji">🥚</span>
-      <h2>Mayonnaise helper</h2>
-      <p>Quantities from the amount of oil you have, and a rescue guide for
-      when the emulsion goes wrong — which it does, for everyone.</p>
-      <span class="go">Whisk →</span>
-    </a>
+  <!-- A task, out of the box -->
+  <section class="panel" id="outPanel" hidden>
+    <p class="eyebrow" id="outEyebrow">Just this</p>
+    <p id="thing"></p>
+    <p class="thing-meta" id="thingMeta"></p>
+    <div class="controls">
+      <button class="primary" id="doneBtn">Done</button>
+      <button class="ghost" id="notThis">Not this one</button>
+      <button class="ghost" id="backBtn">Back to the box</button>
+    </div>
+    <p class="note" id="thingNote"></p>
+  </section>
+
+  <!-- Putting something in -->
+  <section class="panel" id="inPanel" hidden>
+    <label class="sr-only" for="task">Task</label>
+    <input type="text" id="task" placeholder="e.g. call the dentist" autocomplete="off">
+
+    <p class="grouplabel">How heavy is it?</p>
+    <div class="opts" id="effortOpts" role="group" aria-label="Effort needed">
+      <button class="chip" data-effort="1" aria-pressed="true">Light</button>
+      <button class="chip" data-effort="2" aria-pressed="false">Medium</button>
+      <button class="chip" data-effort="3" aria-pressed="false">Heavy</button>
+    </div>
+
+    <p class="grouplabel">Does it come back?</p>
+    <div class="opts" id="repeatOpts" role="group" aria-label="Recurrence">
+      <button class="chip" data-repeat="0" aria-pressed="true">One-off</button>
+      <button class="chip" data-repeat="1" aria-pressed="false">Daily</button>
+      <button class="chip" data-repeat="7" aria-pressed="false">Weekly</button>
+      <button class="chip" data-repeat="30" aria-pressed="false">Monthly</button>
+    </div>
+
+    <div class="controls">
+      <button class="primary" id="add">Into the box</button>
+    </div>
+    <p class="note" id="addNote" aria-live="polite"></p>
+    <button class="plain" id="doneForNow">done for now</button>
+  </section>
+
+  <!-- Taking something out: the energy question -->
+  <section class="panel" id="energyPanel" hidden>
+    <p class="ask">What have you got right now?</p>
+    <div class="opts opts-column" id="energyOpts" role="group" aria-label="Current energy">
+      <button class="chip chip-wide" data-energy="1">Running on fumes</button>
+      <button class="chip chip-wide" data-energy="2">Something left</button>
+      <button class="chip chip-wide" data-energy="3">Actually fresh</button>
+    </div>
+  </section>
+
+  <!-- The box itself -->
+  <div id="boxArea">
+    <button class="choice" id="choiceIn" hidden>Put something in</button>
+
+    <div id="boxWrap">
+      <button id="box" aria-label="The box. Press to open it.">
+        <svg viewBox="0 0 340 300" aria-hidden="true" focusable="false">
+          <!-- ground -->
+          <g class="ground">
+            <path d="M36,256 L304,256" />
+            <path d="M60,260 L280,260" opacity="0.3" />
+            <path d="M46,252 l6,0 M292,252 l6,0" opacity="0.5" />
+          </g>
+
+          <!-- shadow: hatched strokes that breathe -->
+          <g id="shadow">
+            <path d="M96,242 L268,242" />
+            <path d="M104,246 L258,246" />
+            <path d="M118,250 L242,250" />
+          </g>
+
+          <!-- body -->
+          <g class="body">
+            <!-- opening rim and interior (revealed when the lid moves) -->
+            <polygon class="interior" points="88,138 238,138 274,116 124,116" />
+            <g class="interior-hatch">
+              <path d="M108,132 L136,122" />
+              <path d="M132,133 L160,123" />
+              <path d="M156,134 L184,124" />
+              <path d="M180,134 L208,124" />
+              <path d="M204,134 L232,124" />
+            </g>
+
+            <!-- side face -->
+            <polygon class="face side" points="238,138 274,116 274,212 238,234" />
+            <g class="hatch">
+              <path d="M244,144 L268,129" />
+              <path d="M244,164 L268,149" />
+              <path d="M244,184 L268,169" />
+              <path d="M244,204 L268,189" />
+              <path d="M244,222 L268,207" />
+            </g>
+
+            <!-- front face -->
+            <polygon class="face front" points="88,138 238,138 238,234 88,234" />
+            <!-- plank seams and grain -->
+            <g class="grain">
+              <path d="M90,170 L236,170" />
+              <path d="M90,202 L236,202" />
+              <path d="M104,150 l14,0 M186,158 l18,0 M120,186 l16,0 M198,190 l12,0 M110,220 l18,0 M180,224 l14,0" opacity="0.5" />
+            </g>
+            <!-- corner brackets -->
+            <g class="brackets">
+              <path d="M88,150 L88,138 L100,138" />
+              <path d="M226,138 L238,138 L238,150" />
+              <path d="M88,222 L88,234 L100,234" />
+              <path d="M226,234 L238,234 L238,222" />
+            </g>
+            <!-- latch plate on the body -->
+            <path class="latch" d="M155,138 L171,138 L171,150 L163,155 L155,150 Z" />
+            <circle class="latch" cx="163" cy="145" r="1.6" />
+          </g>
+
+          <!-- seam: the only persistent signal, a thin accent line when ajar -->
+          <path id="seam" d="M86,138 L240,138 L276,116" />
+
+          <!-- lid: hinged at the back left, rotated by CSS -->
+          <g id="lid">
+            <polygon class="face lid-top" points="84,126 120,104 278,104 242,126" />
+            <g class="hatch">
+              <path d="M104,122 L140,100" opacity="0" />
+              <path d="M112,124 L148,102" />
+              <path d="M144,124 L180,102" />
+              <path d="M176,124 L212,102" />
+              <path d="M208,124 L244,102" />
+            </g>
+            <polygon class="face lid-lip" points="84,126 242,126 242,138 84,138" />
+            <polygon class="face lid-side" points="242,126 278,104 278,116 242,138" />
+            <path class="grain" d="M90,132 L236,132" opacity="0.35" />
+            <!-- hasp, lifts with the lid -->
+            <path class="latch" d="M157,128 L169,128 L169,138 L157,138 Z" />
+          </g>
+        </svg>
+      </button>
+      <!-- layer for the text that drifts into the box -->
+      <div id="driftLayer" aria-hidden="true"></div>
+    </div>
+
+    <button class="choice" id="choiceOut" hidden>Take something out</button>
   </div>
 
-  <h2>Why these tools?</h2>
-  <p>Because the obvious shortcut gives a wrong answer. Generic cup
-  converters quietly use water's density for everything, which is why
-  online-converted baking recipes fail — flour, sugar and honey each need
-  their own number. And mayonnaise recipes state quantities the wrong way
-  around: the yolk count should follow from the oil, not the reverse,
-  because it's the yolk's coating capacity that sets the limit.</p>
-  <p>Each tool explains its own arithmetic below the calculator, including
-  what it deliberately leaves out. If a tool's honest answer is "buy a €15
-  kitchen scale and stop converting", it says so.</p>
+  <p class="note" id="storageNote" aria-live="polite"></p>
 
 </main>
 
-<footer class="site-footer">
-  <div class="wrap">
-    <p>This site is free to use and plans to fund itself with advertising.
-    Ads use cookies; you decide whether they load.</p>
-    <p><a href="privacy.html">Privacy policy</a> ·
-    <a href="#" id="manage-consent">Cookie settings</a></p>
-  </div>
+<footer>
+  Everything stays in this browser, on this device. No account, no cloud, no streaks,
+  no notifications, and the box never shows you everything at once.
+  <button class="plain" id="emptyBox">Empty the box completely</button>
 </footer>
 
-<script src="consent.js"></script>
+<script src="app.js"></script>
+<script>
+if ('serviceWorker' in navigator && location.protocol === 'https:') {
+  navigator.serviceWorker.register('sw.js');
+}
+</script>
 </body>
 </html>

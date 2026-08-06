@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Box</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1B282C">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="The Box">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;1,6..72,300&family=Karla:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --deep:    #1B282C;
+    --surface: #23343A;
+    --line:    #38494F;
+    --mist:    #DAE3E1;
+    --quiet:   #879896;
+    --clay:    #D9A066;
+
+    --display: "Newsreader", Georgia, serif;
+    --body:    "Karla", system-ui, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--deep);
+    color: var(--mist);
+    font-family: var(--body);
+    font-size: 17px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 20px 24px;
+  }
+
+  main { width: 100%; max-width: 560px; flex: 1; }
+
+  .stage { display: none; }
+  .stage.active { display: block; }
+
+  h1.lede {
+    font-family: var(--display);
+    font-weight: 300;
+    font-size: clamp(28px, 6vw, 40px);
+    line-height: 1.25;
+    margin: 0 0 8px;
+  }
+
+  .sub { color: var(--quiet); margin: 0 0 26px; font-size: 16px; }
+
+  /* ---------- the box count ---------- */
+  /* ---------- inputs ---------- */
+  input[type="text"] {
+    width: 100%;
+    background: var(--surface);
+    color: var(--mist);
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    padding: 15px 18px;
+    font-family: var(--body);
+    font-size: 17px;
+    outline: none;
+  }
+  input[type="text"]::placeholder { color: #5E7075; }
+  input[type="text"]:focus-visible { border-color: var(--clay); }
+
+  .opts { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+
+  .chip {
+    background: none;
+    border: 1px solid var(--line);
+    color: var(--quiet);
+    border-radius: 999px;
+    padding: 8px 16px;
+    font-family: var(--body);
+    font-size: 15px;
+    cursor: pointer;
+    transition: color 140ms, border-color 140ms, background 140ms;
+  }
+  .chip:hover { color: var(--mist); border-color: var(--quiet); }
+  .chip[aria-pressed="true"] {
+    background: var(--surface);
+    color: var(--clay);
+    border-color: var(--clay);
+  }
+
+  .grouplabel {
+    font-size: 13px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--quiet);
+    margin: 24px 0 4px;
+  }
+
+  .row { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; margin-top: 26px; }
+
+  button.primary, button.ghost, button.plain { font-family: var(--body); cursor: pointer; border-radius: 3px; }
+
+  .primary {
+    background: var(--clay);
+    color: #1B282C;
+    border: 1px solid var(--clay);
+    padding: 13px 26px;
+    font-size: 16px;
+    font-weight: 500;
+    transition: background 140ms;
+  }
+  .primary:hover { background: #E4B27F; }
+  .primary:disabled { opacity: 0.4; cursor: default; }
+
+  .ghost {
+    background: none;
+    color: var(--quiet);
+    border: 1px solid var(--line);
+    padding: 11px 18px;
+    font-size: 16px;
+  }
+  .ghost:hover { color: var(--mist); border-color: var(--quiet); }
+
+  .plain {
+    background: none; border: none;
+    color: var(--quiet);
+    padding: 6px 2px;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    font-size: 15px;
+  }
+  .plain:hover { color: var(--mist); }
+
+  button:focus-visible, input:focus-visible {
+    outline: 2px solid var(--clay);
+    outline-offset: 3px;
+  }
+
+  .note { color: var(--quiet); font-size: 14px; margin-top: 12px; min-height: 20px; }
+
+  /* ---------- suggestion ---------- */
+  .eyebrow {
+    font-size: 13px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--quiet);
+    margin: 0 0 20px;
+  }
+
+  #thing {
+    font-family: var(--display);
+    font-weight: 400;
+    font-size: clamp(32px, 8vw, 50px);
+    line-height: 1.18;
+    margin: 0;
+    color: #fff;
+    animation: rise 520ms cubic-bezier(.2,.7,.3,1) both;
+  }
+
+  .thingmeta {
+    margin: 16px 0 0;
+    color: var(--quiet);
+    font-size: 15px;
+    font-family: var(--display);
+    font-style: italic;
+  }
+
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: none; }
+  }
+
+  #calmMsg {
+    font-family: var(--display);
+    font-weight: 300;
+    font-size: clamp(28px, 7vw, 42px);
+    line-height: 1.25;
+    margin: 0 0 12px;
+    animation: rise 520ms cubic-bezier(.2,.7,.3,1) both;
+  }
+
+  .divider { border: none; border-top: 1px solid var(--line); margin: 34px 0 26px; }
+
+  footer {
+    max-width: 560px; width: 100%;
+    margin-top: 56px; padding-top: 18px;
+    border-top: 1px solid var(--line);
+    color: var(--quiet);
+    font-size: 13.5px;
+    line-height: 1.7;
+  }
+  footer button { vertical-align: baseline; }
+
+  @media (prefers-reduced-motion: reduce) {
+    #thing, #calmMsg { animation: none; }
+    .chip, .primary { transition: none; }
+  }
+</style>
+</head>
+<body>
+
+<main>
+
+  <!-- HOME: add + ask -->
+  <section class="stage active" id="stageHome">
+    <h1 class="lede">The Box</h1>
+    <p class="sub">Put tasks in. It never forgets them, and it never shows you the pile. When you have something left in the tank, ask it for one thing.</p>
+
+    <label for="task" style="position:absolute;left:-9999px;">Task</label>
+    <input type="text" id="task" placeholder="e.g. call the dentist" autocomplete="off">
+
+    <p class="grouplabel">How heavy is it?</p>
+    <div class="opts" id="effortOpts" role="group" aria-label="Effort needed">
+      <button class="chip" data-effort="1" aria-pressed="true">Light</button>
+      <button class="chip" data-effort="2" aria-pressed="false">Medium</button>
+      <button class="chip" data-effort="3" aria-pressed="false">Heavy</button>
+    </div>
+
+    <p class="grouplabel">Does it come back?</p>
+    <div class="opts" id="repeatOpts" role="group" aria-label="Recurrence">
+      <button class="chip" data-repeat="0" aria-pressed="true">One-off</button>
+      <button class="chip" data-repeat="1" aria-pressed="false">Daily</button>
+      <button class="chip" data-repeat="7" aria-pressed="false">Weekly</button>
+      <button class="chip" data-repeat="30" aria-pressed="false">Monthly</button>
+    </div>
+
+    <div class="row">
+      <button class="primary" id="add">Into the box</button>
+    </div>
+    <p class="note" id="addNote"></p>
+
+    <hr class="divider">
+
+    <p class="grouplabel">What have you got right now?</p>
+    <div class="opts" id="energyOpts" role="group" aria-label="Current energy">
+      <button class="chip" data-energy="1" aria-pressed="false">Running on fumes</button>
+      <button class="chip" data-energy="2" aria-pressed="false">Something left</button>
+      <button class="chip" data-energy="3" aria-pressed="false">Actually fresh</button>
+    </div>
+
+    <div class="row">
+      <button class="primary" id="ask" disabled>Give me one thing</button>
+    </div>
+    <p class="note" id="askNote"></p>
+  </section>
+
+  <!-- SUGGESTION -->
+  <section class="stage" id="stageThing">
+    <p class="eyebrow">Just this</p>
+    <p id="thing"></p>
+    <p class="thingmeta" id="thingMeta"></p>
+
+    <div class="row" style="margin-top:34px;">
+      <button class="primary" id="doneBtn">Done</button>
+      <button class="ghost" id="notThis">Not this one</button>
+      <button class="ghost" id="backBtn">Back to the box</button>
+    </div>
+    <p class="note" id="thingNote"></p>
+  </section>
+
+  <!-- NOTHING FITS / EMPTY -->
+  <section class="stage" id="stageCalm">
+    <p id="calmMsg"></p>
+    <p class="sub" id="calmSub"></p>
+    <div class="row">
+      <button class="ghost" id="calmBack">Back to the box</button>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  Everything stays in this browser, on this device. No account, no cloud, no streaks,
+  no notifications, and the box never shows you everything at once.
+  <button class="plain" id="emptyBox">Empty the box completely</button>
+</footer>
+
+<script>
+(function () {
+  var KEY = 'the-box-v1';
+  var DAY = 24 * 60 * 60 * 1000;
+
+  var mem = { tasks: [] };
+  var storageOk = true;
+
+  function load() {
+    try {
+      var raw = localStorage.getItem(KEY);
+      if (raw) mem = JSON.parse(raw);
+      if (!mem || !Array.isArray(mem.tasks)) mem = { tasks: [] };
+    } catch (e) {
+      storageOk = false;
+    }
+  }
+
+  function save() {
+    try {
+      localStorage.setItem(KEY, JSON.stringify(mem));
+    } catch (e) {
+      storageOk = false;
+    }
+  }
+
+  load();
+  if (typeof mem.current === 'undefined') mem.current = null;
+
+  // ---------- helpers ----------
+  function now() { return Date.now(); }
+
+  function available(t) {
+    return !t.sleepUntil || t.sleepUntil <= now();
+  }
+
+  function availableTasks() {
+    return mem.tasks.filter(available);
+  }
+
+  // ---------- elements ----------
+  var $ = function (id) { return document.getElementById(id); };
+
+  var stages = { home: $('stageHome'), thing: $('stageThing'), calm: $('stageCalm') };
+  function show(name) {
+    Object.keys(stages).forEach(function (k) { stages[k].classList.remove('active'); });
+    stages[name].classList.add('active');
+    window.scrollTo(0, 0);
+  }
+
+  // chip groups
+  function wireChips(containerId, attr, onChange) {
+    var box = $(containerId);
+    box.addEventListener('click', function (e) {
+      var btn = e.target.closest('.chip');
+      if (!btn) return;
+      Array.prototype.forEach.call(box.querySelectorAll('.chip'), function (c) {
+        c.setAttribute('aria-pressed', c === btn ? 'true' : 'false');
+      });
+      if (onChange) onChange(parseInt(btn.getAttribute(attr), 10));
+    });
+  }
+
+  function chipValue(containerId, attr) {
+    var pressed = $(containerId).querySelector('.chip[aria-pressed="true"]');
+    return pressed ? parseInt(pressed.getAttribute(attr), 10) : null;
+  }
+
+  wireChips('effortOpts', 'data-effort');
+  wireChips('repeatOpts', 'data-repeat');
+  wireChips('energyOpts', 'data-energy', function () {
+    $('ask').disabled = false;
+  });
+
+  // ---------- box line ----------
+  var effortWords = { 1: 'a light one', 2: 'a medium one', 3: 'a heavy one' };
+
+  if (!storageOk) {
+    $('addNote').textContent = 'Heads up: this browser is blocking storage, so the box will forget when the tab closes. Open the file in a normal browser tab for it to keep things.';
+  }
+
+  // ---------- add ----------
+  function normalize(s) {
+    return s.toLowerCase().replace(/\s+/g, ' ').trim();
+  }
+
+  function addTask() {
+    var text = $('task').value.trim();
+    if (!text) {
+      $('addNote').textContent = 'Type the task first. A few words is plenty.';
+      $('task').focus();
+      return;
+    }
+    var match = null;
+    for (var i = 0; i < mem.tasks.length; i++) {
+      if (normalize(mem.tasks[i].text) === normalize(text)) { match = mem.tasks[i]; break; }
+    }
+    if (match) {
+      if (available(match)) {
+        $('addNote').textContent = '\u201C' + match.text + '\u201D is already in the box. It hasn\u2019t been forgotten.';
+      } else {
+        $('addNote').textContent = '\u201C' + match.text + '\u201D is already in the box, resting until its next time comes round.';
+      }
+      $('task').value = '';
+      $('task').focus();
+      return;
+    }
+    mem.tasks.push({
+      id: String(now()) + Math.random().toString(16).slice(2),
+      text: text,
+      effort: chipValue('effortOpts', 'data-effort') || 1,
+      repeat: chipValue('repeatOpts', 'data-repeat') || 0,
+      sleepUntil: 0,
+      added: now()
+    });
+    save();
+    $('task').value = '';
+    $('addNote').textContent = '\u201C' + text + '\u201D is in the box. You can forget it now.';
+    $('task').focus();
+  }
+
+  $('add').addEventListener('click', addTask);
+  $('task').addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') addTask();
+  });
+
+  // ---------- ask ----------
+  var current = null;
+  var skippedThisRound = [];
+
+  function pick(energy) {
+    // Tasks needing no more than current energy; oldest first so nothing rots forever.
+    var pool = availableTasks().filter(function (t) {
+      return t.effort <= energy && skippedThisRound.indexOf(t.id) === -1;
+    });
+    if (pool.length === 0) {
+      // allow skipped ones back in before giving up
+      pool = availableTasks().filter(function (t) { return t.effort <= energy; });
+      skippedThisRound = [];
+    }
+    if (pool.length === 0) return null;
+    pool.sort(function (a, b) { return a.added - b.added; });
+    return pool[0];
+  }
+
+  function renderThing(t, energy) {
+    current = t;
+    mem.current = t.id;
+    save();
+    $('thing').textContent = t.text;
+    $('thing').style.animation = 'none';
+    void $('thing').offsetWidth;
+    $('thing').style.animation = '';
+
+    var bits = [];
+    bits.push(effortWords[t.effort] || 'a task');
+    if (t.repeat > 0) bits.push('comes back ' + (t.repeat === 1 ? 'daily' : t.repeat === 7 ? 'weekly' : 'monthly'));
+    $('thingMeta').textContent = 'This is ' + bits.join(', ') + '. The box is holding the rest so you don\u2019t have to.';
+    $('thingNote').textContent = '';
+  }
+
+  $('ask').addEventListener('click', function () {
+    var energy = chipValue('energyOpts', 'data-energy');
+    if (!energy) return;
+    skippedThisRound = [];
+    var t = pick(energy);
+    if (!t) {
+      var anyAtAll = availableTasks().length > 0;
+      if (!anyAtAll && mem.tasks.length > 0) {
+        $('calmMsg').textContent = 'Everything is asleep.';
+        $('calmSub').textContent = 'The recurring things will wake up when their time comes. Until then the box needs nothing from you.';
+      } else if (!anyAtAll) {
+        $('calmMsg').textContent = 'The box is empty.';
+        $('calmSub').textContent = 'Nothing is waiting. Enjoy that. It doesn\u2019t happen often.';
+      } else {
+        $('calmMsg').textContent = 'Nothing fits the energy you have.';
+        $('calmSub').textContent = 'Everything left in the box needs more than you\u2019ve got right now, and that\u2019s a fine reason to do none of it. Rest is allowed.';
+      }
+      show('calm');
+      return;
+    }
+    document.querySelector('#stageThing .eyebrow').textContent = 'Just this';
+    renderThing(t, energy);
+    show('thing');
+  });
+
+  // ---------- done / skip ----------
+  $('doneBtn').addEventListener('click', function () {
+    if (!current) return;
+    mem.current = null;
+    if (current.repeat > 0) {
+      current.sleepUntil = now() + current.repeat * DAY;
+    } else {
+      mem.tasks = mem.tasks.filter(function (t) { return t.id !== current.id; });
+    }
+    save();
+
+    var energy = chipValue('energyOpts', 'data-energy');
+    var remaining = availableTasks().length;
+    if (remaining === 0) {
+      $('calmMsg').textContent = 'Done, and the box is quiet.';
+      $('calmSub').textContent = 'Nothing else is awake. Stop here with a clear head.';
+      show('calm');
+      return;
+    }
+    // Offer stop as default; one more is a choice, not an expectation.
+    $('calmMsg').textContent = 'Done. That\u2019s one more than none.';
+    $('calmSub').textContent = 'You can stop here. Nothing is keeping score. If you\u2019ve still got something in the tank, ask the box again.';
+    show('calm');
+  });
+
+  $('notThis').addEventListener('click', function () {
+    if (!current) return;
+    skippedThisRound.push(current.id);
+    var energy = chipValue('energyOpts', 'data-energy');
+    var t = pick(energy);
+    if (!t || t.id === current.id) {
+      $('thingNote').textContent = 'That\u2019s the only thing that fits your energy right now. Do it, or rest. Both are fine.';
+      return;
+    }
+    renderThing(t, energy);
+  });
+
+  $('backBtn').addEventListener('click', function () {
+    mem.current = null;
+    save();
+    show('home');
+  });
+  $('calmBack').addEventListener('click', function () { show('home'); });
+
+  // ---------- empty ----------
+  // Resume: if the box handed you something earlier, it is still yours until you say otherwise.
+  (function resume() {
+    if (!mem.current) return;
+    var t = null;
+    for (var i = 0; i < mem.tasks.length; i++) {
+      if (mem.tasks[i].id === mem.current) { t = mem.tasks[i]; break; }
+    }
+    if (!t) { mem.current = null; save(); return; }
+    current = t;
+    $('thing').textContent = t.text;
+    document.querySelector('#stageThing .eyebrow').textContent = 'Still yours';
+    $('thingMeta').textContent = 'You took this out earlier. However long it took is however long it took.';
+    show('thing');
+  })();
+
+  $('emptyBox').addEventListener('click', function () {
+    if (mem.tasks.length === 0) return;
+    var sure = confirm('Empty the box completely? Everything in it will be gone for good.');
+    if (!sure) return;
+    mem = { tasks: [], current: null };
+    current = null;
+    save();
+    show('home');
+  });
+})();
+</script>
+
+
+<script>
+if ('serviceWorker' in navigator && location.protocol === 'https:') {
+  navigator.serviceWorker.register('sw.js');
+}
+</script>
+</body>
+</html>
