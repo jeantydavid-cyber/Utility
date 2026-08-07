@@ -8,11 +8,13 @@
   var KEY = 'the-box-v1';
   var DAY = 24 * 60 * 60 * 1000;
 
-  var DRIFT_MS = 1150;  // the written slip folding and dropping into the box
-  var LID_MS = 340;     // the lid closing over it
-  var FOLD_MS = 950;    // the paper folding back up before it sinks in
+  var DRIFT_MS = 1800;  // the written slip folding and dropping into the box
+  var LID_MS = 900;     // the lid closing over it (lid transition is 700ms)
+  var FOLD_MS = 1400;   // must match --t-paper in style.css
   var EMPTY_LINGER_MS = 2600;
   var EASE = 'cubic-bezier(0.3, 0.9, 0.35, 1.02)';
+  // the one folded pose every paper animation shares (see style.css)
+  var FOLDED = 'perspective(700px) rotateX(64deg) scaleY(0.3)';
 
   // ---------- storage, with an in-memory fallback ----------
   var mem = { tasks: [], current: null };
@@ -236,12 +238,13 @@
     $('addNote').textContent = '';
 
     var field = $('task');
-    var fieldRect = field.getBoundingClientRect();
+    var slip = $('slip');
+    var fieldRect = slip.getBoundingClientRect();
     var boxRect = document.getElementById('boxWrap').getBoundingClientRect();
     field.value = '';
 
     var drift = document.createElement('span');
-    drift.className = 'drift';
+    drift.className = 'paper drift';
     drift.textContent = text;
     drift.style.left = fieldRect.left + 'px';
     drift.style.top = fieldRect.top + 'px';
@@ -271,15 +274,16 @@
 
     if (drift.animate) {
       var anim = drift.animate([
-        { transform: 'none', opacity: 1, offset: 0 },
-        // folded in half: still clearly a piece of paper, not a hairline
-        { transform: 'perspective(700px) rotateX(52deg) scaleY(0.5)',
-          opacity: 1, offset: 0.4 },
+        { transform: 'rotate(-0.8deg)', opacity: 1, offset: 0 },
+        // folds in place first, along the same pose as every other fold
+        { transform: FOLDED + ' rotate(-0.8deg)', opacity: 1, offset: 0.4 },
+        // then travels to the mouth of the box, still folded
         { transform: 'translate(' + (dx * 0.85) + 'px, ' + (dy * 0.85) + 'px) ' +
-          'perspective(700px) rotateX(58deg) scaleY(0.42) scale(0.65)',
+          FOLDED + ' scale(0.65) rotate(-0.8deg)',
           opacity: 1, offset: 0.85 },
+        // and sinks in
         { transform: 'translate(' + dx + 'px, ' + dy + 'px) ' +
-          'perspective(700px) rotateX(62deg) scaleY(0.38) scale(0.5)',
+          FOLDED + ' scale(0.5) rotate(-0.8deg)',
           opacity: 0, offset: 1 }
       ], { duration: reduce ? 1 : DRIFT_MS, easing: EASE, fill: 'forwards' });
       anim.onfinish = settle;
@@ -292,6 +296,8 @@
   $('task').addEventListener('keydown', function (e) {
     if (e.key === 'Enter') addTask();
   });
+  // the whole slip is writable, not just the line of text on it
+  $('slip').addEventListener('click', function () { $('task').focus(); });
 
   // ---------- taking something out ----------
   function pick(energy) {

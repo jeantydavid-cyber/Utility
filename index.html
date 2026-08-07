@@ -53,7 +53,9 @@
   <!-- Putting something in -->
   <section class="panel" id="inPanel" hidden>
     <label class="sr-only" for="task">Task</label>
-    <input type="text" id="task" placeholder="e.g. call the dentist" autocomplete="off">
+    <div class="paper paper-slip" id="slip">
+      <input type="text" id="task" placeholder="e.g. call the dentist" autocomplete="off">
+    </div>
 
     <p class="grouplabel">How heavy is it?</p>
     <div class="opts" id="effortOpts" role="group" aria-label="Effort needed">

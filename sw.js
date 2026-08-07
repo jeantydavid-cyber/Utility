@@ -1,7 +1,7 @@
 /* The Box: offline-first service worker.
    Caches the app shell on install; serves from cache, updating quietly. */
 
-var CACHE = 'the-box-shell-v7';
+var CACHE = 'the-box-shell-v8';
 
 var SHELL = [
   './',

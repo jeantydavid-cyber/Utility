@@ -15,9 +15,12 @@
   --display: "Newsreader", Georgia, serif;
   --body:    "Karla", system-ui, sans-serif;
 
-  /* the product's motion language: a real lid, real paper */
+  /* the product's motion language: a real lid, real paper.
+     One easing, one clock. --t for the interface, --t-paper for every
+     fold and unfold (keep app.js FOLD_MS in step with --t-paper). */
   --ease: cubic-bezier(0.3, 0.9, 0.35, 1.02);
-  --t: 420ms;
+  --t: 560ms;
+  --t-paper: 1400ms;
 }
 
 * { box-sizing: border-box; }
@@ -148,7 +151,7 @@ main {
 #lid {
   transform-origin: 120px 104px;
   transform: rotate(0deg);
-  transition: transform 460ms var(--ease);
+  transition: transform 700ms var(--ease);
 }
 
 #stage[data-state="choice"] #lid { transform: rotate(-14deg); }
@@ -182,7 +185,7 @@ main {
   cursor: pointer;
   opacity: 0;
   transform: translateY(6px);
-  transition: opacity 300ms var(--ease), transform 300ms var(--ease),
+  transition: opacity 450ms var(--ease), transform 450ms var(--ease),
               border-color 140ms, color 140ms;
 }
 
@@ -203,7 +206,7 @@ main {
 .panel { width: 100%; }
 
 #inPanel, #energyPanel {
-  animation: slide-up 380ms var(--ease) both;
+  animation: slide-up 560ms var(--ease) both;
   margin-bottom: 18px;
 }
 
@@ -212,22 +215,38 @@ main {
   to   { opacity: 1; transform: none; }
 }
 
-/* the field is the slip of paper the task gets written on */
-input[type="text"] {
+/* the task is written on a real slip of paper — the same object that
+   later comes out of the box, creases and all, not a form field */
+.paper.paper-slip {
+  padding: 20px 22px;
+  transform: rotate(-0.8deg);
+  cursor: text;
+}
+
+.paper-slip input[type="text"] {
   width: 100%;
-  background: linear-gradient(180deg, #EDE7D8, #E2DBC8);
+  background: none;
   color: #22302C;
+  caret-color: #22302C;
   border: none;
-  border-radius: 2px;
-  padding: 16px 18px;
+  border-radius: 0;
+  padding: 0;
   font-family: var(--display);
   font-size: 19px;
+  line-height: 1.6;
   outline: none;
-  box-shadow: 0 5px 16px rgba(0, 0, 0, 0.35);
+  box-shadow: none;
 }
 
 input[type="text"]::placeholder { color: #8B8674; font-style: italic; }
-input[type="text"]:focus-visible { outline: 2px solid var(--clay); outline-offset: 3px; }
+
+/* no form-field ring on the writing line — the paper itself signals focus
+   with a faint clay edge, so it stays a slip of paper, not a box */
+.paper-slip input[type="text"]:focus-visible { outline: none; }
+.paper.paper-slip:focus-within {
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.45),
+              0 0 0 1px rgba(217, 160, 102, 0.45);
+}
 
 .opts { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
 
@@ -364,6 +383,7 @@ button:focus-visible, input:focus-visible {
   left: 4%;
   right: 4%;
   border-top: 1px solid rgba(27, 40, 44, 0.12);
+  pointer-events: none;
 }
 
 .paper::before { top: 33%; }
@@ -378,13 +398,16 @@ button:focus-visible, input:focus-visible {
   color: #22302C;
 }
 
-.paper.unfold { animation: unfold 950ms var(--ease) both; }
-.paper.foldaway { animation: foldaway 900ms var(--ease) both; }
-.paper.fade { animation: fade-out 420ms ease both; }
+.paper.unfold { animation: unfold var(--t-paper) var(--ease) both; }
+.paper.foldaway { animation: foldaway var(--t-paper) var(--ease) both; }
+.paper.fade { animation: fade-out 600ms ease both; }
+
+/* One folded pose everywhere the paper folds — going in, coming out,
+   going back: rotateX(64deg) scaleY(0.3). Mirror it in app.js (drift). */
 
 /* out of the box: rises as a folded slip, then opens flat */
 @keyframes unfold {
-  0%   { opacity: 0; transform: perspective(700px) translateY(80px) rotateX(72deg) scaleY(0.16) scale(0.86) rotate(-1.2deg); }
+  0%   { opacity: 0; transform: perspective(700px) translateY(80px) rotateX(64deg) scaleY(0.3) scale(0.86) rotate(-1.2deg); }
   55%  { opacity: 1; transform: perspective(700px) translateY(4px) rotateX(10deg) scaleY(1.02) rotate(-1.2deg); }
   100% { opacity: 1; transform: rotate(-1.2deg); }
 }
@@ -392,8 +415,8 @@ button:focus-visible, input:focus-visible {
 /* back into the box: folds flat, then sinks in */
 @keyframes foldaway {
   0%   { opacity: 1; transform: rotate(-1.2deg); }
-  50%  { opacity: 1; transform: perspective(700px) rotateX(70deg) scaleY(0.15) rotate(-1.2deg); }
-  100% { opacity: 0; transform: perspective(700px) translateY(150px) rotateX(70deg) scaleY(0.13) scale(0.6) rotate(-1.2deg); }
+  50%  { opacity: 1; transform: perspective(700px) rotateX(64deg) scaleY(0.3) rotate(-1.2deg); }
+  100% { opacity: 0; transform: perspective(700px) translateY(150px) rotateX(64deg) scaleY(0.3) scale(0.6) rotate(-1.2deg); }
 }
 
 @keyframes fade-out {
@@ -420,7 +443,7 @@ button:focus-visible, input:focus-visible {
   font-size: clamp(26px, 6.5vw, 38px);
   line-height: 1.25;
   margin: 0 0 10px;
-  animation: rise 500ms var(--ease) both;
+  animation: rise 700ms var(--ease) both;
 }
 
 #welcome { margin-bottom: 18px; }
@@ -442,9 +465,10 @@ button:focus-visible, input:focus-visible {
 
 /* ------------------------------------------------ the drifting text */
 
-/* the written slip: looks exactly like the text field it lifts off from,
-   then folds in half and drops into the box (motion driven from app.js) */
-.drift {
+/* the written slip in flight: the same paper it was written on (it carries
+   the .paper class for the gradient, creases and shadow), lifted off the
+   panel, folded along the standard pose and dropped into the box (app.js) */
+.paper.drift {
   position: fixed;
   z-index: 60;
   box-sizing: border-box;
@@ -453,10 +477,7 @@ button:focus-visible, input:focus-visible {
   font-size: 19px;
   line-height: 1.6;
   color: #22302C;
-  background: linear-gradient(180deg, #EDE7D8, #E2DBC8);
-  border-radius: 2px;
-  padding: 16px 18px;
-  box-shadow: 0 5px 16px rgba(0, 0, 0, 0.35);
+  padding: 20px 22px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
